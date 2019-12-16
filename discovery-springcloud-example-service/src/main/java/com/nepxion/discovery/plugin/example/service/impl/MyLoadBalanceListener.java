@@ -13,34 +13,28 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nepxion.discovery.common.constant.DiscoveryConstant;
-import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.framework.listener.loadbalance.AbstractLoadBalanceListener;
 import com.netflix.loadbalancer.Server;
 
-// 当元数据中的group为mygroup3，禁止被负载均衡到
+// 当目标服务的元数据中的Group为mygroup2，禁止被本服务负载均衡
 public class MyLoadBalanceListener extends AbstractLoadBalanceListener {
-    @Autowired
-    private PluginAdapter pluginAdapter;
-
     @Override
     public void onGetServers(String serviceId, List<? extends Server> servers) {
         Iterator<? extends Server> iterator = servers.iterator();
         while (iterator.hasNext()) {
             Server server = iterator.next();
-            String group = pluginAdapter.getServerMetadata(server).get(DiscoveryConstant.GROUP);
+            String group = pluginAdapter.getServerGroup(server);
             if (StringUtils.equals(group, "mygroup3")) {
                 iterator.remove();
 
-                System.out.println("********** 服务名=" + serviceId + "，组名=" + group + "的服务不允许被其它服务负载均衡到");
+                System.out.println("********** 服务名=" + serviceId + "，组名=" + group + "的服务禁止被本服务负载均衡");
             }
         }
     }
 
     @Override
     public int getOrder() {
-        return LOWEST_PRECEDENCE - 1;
+        return LOWEST_PRECEDENCE - 500;
     }
 }

@@ -22,7 +22,6 @@ import com.nepxion.discovery.plugin.configcenter.loader.RemoteConfigLoader;
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.framework.config.PluginConfigParser;
 import com.nepxion.discovery.plugin.framework.context.PluginContextAware;
-import com.nepxion.discovery.plugin.framework.event.PluginEventWapper;
 
 public class ConfigInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(ConfigInitializer.class);
@@ -36,8 +35,8 @@ public class ConfigInitializer {
     @Autowired
     private PluginConfigParser pluginConfigParser;
 
-    @Autowired
-    private PluginEventWapper pluginEventWapper;
+    // @Autowired
+    // private PluginEventWapper pluginEventWapper;
 
     @Autowired
     private LocalConfigLoader localConfigLoader;
@@ -56,7 +55,7 @@ public class ConfigInitializer {
             return;
         }
 
-        LOG.info("Rule starts to initialize...");
+        LOG.info("------------- Load Discovery Config --------------");
 
         String remoteConfig = getRemoteConfig();
         if (StringUtils.isNotEmpty(remoteConfig)) {
@@ -64,7 +63,7 @@ public class ConfigInitializer {
                 RuleEntity ruleEntity = pluginConfigParser.parse(remoteConfig);
                 pluginAdapter.setDynamicRule(ruleEntity);
             } catch (Exception e) {
-                LOG.error("Parse rule xml failed", e);
+                LOG.error("Parse config failed", e);
             }
         }
 
@@ -74,15 +73,18 @@ public class ConfigInitializer {
                 RuleEntity ruleEntity = pluginConfigParser.parse(localConfig);
                 pluginAdapter.setLocalRule(ruleEntity);
             } catch (Exception e) {
-                LOG.error("Parse rule xml failed", e);
+                LOG.error("Parse config failed", e);
             }
         }
 
         if (StringUtils.isEmpty(remoteConfig) && StringUtils.isEmpty(localConfig)) {
-            LOG.info("No config is retrieved");
+            LOG.info("No config is found");
         }
 
-        pluginEventWapper.fireCustomization();
+        // 初始化配置的时候，不应该触发fireParameterChanged的EventBus事件
+        // pluginEventWapper.fireParameterChanged();
+
+        LOG.info("--------------------------------------------------");
     }
 
     private String getRemoteConfig() {
@@ -96,11 +98,7 @@ public class ConfigInitializer {
             }
 
             if (StringUtils.isNotEmpty(config)) {
-                LOG.info("Remote config is retrieved");
-
                 return config;
-            } else {
-                LOG.info("Remote config isn't retrieved");
             }
         } else {
             LOG.info("Remote config loader isn't provided");
@@ -119,11 +117,7 @@ public class ConfigInitializer {
         }
 
         if (StringUtils.isNotEmpty(config)) {
-            LOG.info("Local config is retrieved");
-
             return config;
-        } else {
-            LOG.info("Local config isn't retrieved");
         }
 
         return null;

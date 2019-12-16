@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.server.ServerWebExchange;
 
-import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.context.AbstractStrategyContextHolder;
 
-public class GatewayStrategyContextHolder implements StrategyContextHolder {
+public class GatewayStrategyContextHolder extends AbstractStrategyContextHolder {
     private static final Logger LOG = LoggerFactory.getLogger(GatewayStrategyContextHolder.class);
 
     public ServerWebExchange getExchange() {
@@ -26,7 +26,7 @@ public class GatewayStrategyContextHolder implements StrategyContextHolder {
     public String getHeader(String name) {
         ServerWebExchange exchange = getExchange();
         if (exchange == null) {
-            LOG.warn("The ServerWebExchange object is null");
+            LOG.warn("The ServerWebExchange object is lost for thread switched, or it is got before context filter probably");
 
             return null;
         }

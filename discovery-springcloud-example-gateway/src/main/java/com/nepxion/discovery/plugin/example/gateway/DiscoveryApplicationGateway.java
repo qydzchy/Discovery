@@ -16,6 +16,11 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 
 import com.nepxion.discovery.plugin.example.gateway.impl.MyDiscoveryEnabledStrategy;
+import com.nepxion.discovery.plugin.example.gateway.impl.MyDiscoveryListener;
+import com.nepxion.discovery.plugin.example.gateway.impl.MyLoadBalanceListener;
+import com.nepxion.discovery.plugin.example.gateway.impl.MyRegisterListener;
+import com.nepxion.discovery.plugin.example.gateway.impl.MyRouteFilter;
+import com.nepxion.discovery.plugin.strategy.gateway.filter.GatewayStrategyRouteFilter;
 
 @SpringBootApplication
 @EnableDiscoveryClient
@@ -25,8 +30,28 @@ public class DiscoveryApplicationGateway {
     }
 
     @Bean
+    public GatewayStrategyRouteFilter gatewayStrategyRouteFilter() {
+        return new MyRouteFilter();
+    }
+
+    @Bean
     public MyDiscoveryEnabledStrategy myDiscoveryEnabledStrategy() {
         return new MyDiscoveryEnabledStrategy();
+    }
+
+    @Bean
+    public MyRegisterListener myRegisterListener() {
+        return new MyRegisterListener();
+    }
+
+    @Bean
+    public MyDiscoveryListener myDiscoveryListener() {
+        return new MyDiscoveryListener();
+    }
+
+    @Bean
+    public MyLoadBalanceListener myLoadBalanceListener() {
+        return new MyLoadBalanceListener();
     }
 
     /*@Bean
